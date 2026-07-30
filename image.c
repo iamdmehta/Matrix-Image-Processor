@@ -1,31 +1,60 @@
 #include <stdio.h>
 #include "image.h"
 
-void readImage(const char *filename, int pixels[64][64])
+void readImage(const char *filename, int pixels[SIZE][SIZE])
 {
     FILE *fp = fopen(filename, "r");
-    if (fp == NULL){
-        printf("Error in opening the file.\n");
+
+    if(fp == NULL)
+    {
+        printf("Error opening %s\n", filename);
         return;
     }
-    else
-        printf("File opened successfully!\n");
 
-    // to skip the first 3 lines of .pgm file because it just info about the contents of the file and not the contents of the file itself.
     char format[3];
     int width, height, maxval;
 
-    fscanf(fp, "%2s", format);
-    fscanf(fp, "%d %d", &width, &height);
-    fscanf(fp, "%d", &maxval);
+    fscanf(fp,"%2s",format);
+    fscanf(fp,"%d %d",&width,&height);
+    fscanf(fp,"%d",&maxval);
 
-    // for loop to take the intensity of each pixel into a 64x64 matrix
-    for (int i = 0; i < 64; i++)
+    for(int i=0;i<SIZE;i++)
     {
-        for (int j = 0; j < 64; j++)
+        for(int j=0;j<SIZE;j++)
         {
-            fscanf(fp, "%d", &pixels[i][j]);
+            fscanf(fp,"%d",&pixels[i][j]);
         }
     }
+
     fclose(fp);
+
+    printf("Image loaded successfully.\n");
+}
+
+void writeImage(const char *filename, int pixels[SIZE][SIZE], int maxval)
+{
+    FILE *fp = fopen(filename,"w");
+
+    if(fp == NULL)
+    {
+        printf("Error creating %s\n",filename);
+        return;
+    }
+
+    fprintf(fp,"P2\n");
+    fprintf(fp,"%d %d\n",SIZE,SIZE);
+    fprintf(fp,"%d\n",maxval);
+
+    for(int i=0;i<SIZE;i++)
+    {
+        for(int j=0;j<SIZE;j++)
+        {
+            fprintf(fp,"%d ",pixels[i][j]);
+        }
+        fprintf(fp,"\n");
+    }
+
+    fclose(fp);
+
+    printf("%s created successfully.\n",filename);
 }
