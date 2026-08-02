@@ -1,64 +1,69 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include "image.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+#include "image.h"
 
-int main(){
-    int pixels[64][64];
-    int edge[64][64]={0};
+void edgeDetection(int pixels[SIZE][SIZE])
+{
+    int edge[SIZE][SIZE] = {0};
 
-    readImage("lion_p2.pgm",pixels);
-    FILE *fp1=fopen("feature4.pgm","w");
-    if(fp1==NULL){
-        printf("Error in opening the file!\n");
-        return -1;
-    }
-    else{
-        printf("feature4.pgm file opened successfully!\n");
-    }
-
-
-    int Gx[3][3]={-1,0,1,-2,0,2,-1,0,1};
-    int Gy[3][3]={-1,-2,-1,0,0,0,1,2,1};
-
-    //preserves the borders
-    for (int j = 0; j < 64; j++)
+    int Gx[3][3] =
     {
-    edge[0][j] = pixels[0][j]; //top row
-    edge[63][j] = pixels[63][j]; //bottom column
-    }
+        {-1,0,1},
+        {-2,0,2},
+        {-1,0,1}
+    };
 
-    for (int i = 0; i < 64; i++)
+    int Gy[3][3] =
     {
-    edge[i][0] = pixels[i][0]; //left most column
-    edge[i][63] = pixels[i][63]; //right most column
-    }
+        {-1,-2,-1},
+        {0,0,0},
+        {1,2,1}
+    };
 
-    double sum_Gx=0,sum_Gy=0;
-    for(int i=1;i<63;i++){
-        for(int j=1;j<63;j++){
-            sum_Gx=0;sum_Gy=0;
-            for(int di=-1;di<=1;di++){
-                for(int dj=-1;dj<=1;dj++){
-                    sum_Gx+=(pixels[i+di][j+dj] * Gx[di+1][dj+1]);
-                    sum_Gy+=(pixels[i+di][j+dj] * Gy[di+1][dj+1]);
+    double sum_Gx, sum_Gy;
+
+    for(int i=1;i<SIZE-1;i++)
+    {
+        for(int j=1;j<SIZE-1;j++)
+        {
+            sum_Gx = 0;
+            sum_Gy = 0;
+
+            for(int di=-1;di<=1;di++)
+            {
+                for(int dj=-1;dj<=1;dj++)
+                {
+                    sum_Gx += pixels[i+di][j+dj] * Gx[di+1][dj+1];
+                    sum_Gy += pixels[i+di][j+dj] * Gy[di+1][dj+1];
                 }
             }
-            edge[i][j]=(int)sqrt(sum_Gx*sum_Gx + sum_Gy*sum_Gy);
+
+            edge[i][j] = (int)sqrt(sum_Gx*sum_Gx + sum_Gy*sum_Gy);
         }
     }
 
-fprintf(fp1,"P2\n64 64\n820\n");
-for(int i=0;i<64;i++){
-    for(int j=0;j<64;j++){
-    fprintf(fp1,"%d ",edge[i][j]);
+    FILE *fp = fopen("feature4.pgm","w");
+
+    if(fp == NULL)
+    {
+        printf("Error creating feature4.pgm\n");
+        return;
     }
-    fprintf(fp1,"\n");
-}
 
-fclose(fp1);
+    fprintf(fp,"P2\n");
+    fprintf(fp,"%d %d\n",SIZE,SIZE);
+    fprintf(fp,"820\n");
 
-system("magick feature4.pgm feature4.png");
-printf("Feature 4 preview is ready to view.\n");
+    for(int i=0;i<SIZE;i++)
+    {
+        for(int j=0;j<SIZE;j++)
+        {
+            fprintf(fp,"%d ",edge[i][j]);
+        }
 
+        fprintf(fp,"\n");
+    }
+
+    fclose(fp);
 }

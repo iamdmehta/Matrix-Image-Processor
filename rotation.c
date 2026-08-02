@@ -1,93 +1,89 @@
-#include<stdio.h>
+#include <stdio.h>
 #include "image.h"
 
-//As it is a 64x64 matrix, n=64
-int n=64;
-int rotated[64][64];
-int pixels[64][64];
+void rotate90(int pixels[SIZE][SIZE])
+{
+    int temp[SIZE][SIZE];
 
+    for(int i=0;i<SIZE;i++)
+    {
+        for(int j=0;j<SIZE;j++)
+        {
+            temp[j][SIZE-1-i] = pixels[i][j];
+        }
+    }
 
-void rotate90(){
-for(int i=0;i<64;i++){
-    for(int j=0;j<64;j++){
-        rotated[n-j][i]=pixels[i][j];
+    for(int i=0;i<SIZE;i++)
+    {
+        for(int j=0;j<SIZE;j++)
+        {
+            pixels[i][j] = temp[i][j];
+        }
     }
 }
-}
 
-void rotate180(){
-for(int i=0;i<64;i++){
-    for(int j=0;j<64;j++){
-        rotated[n-i][n-j]=pixels[i][j];
+void rotate180(int pixels[SIZE][SIZE])
+{
+    int temp[SIZE][SIZE];
+
+    for(int i=0;i<SIZE;i++)
+    {
+        for(int j=0;j<SIZE;j++)
+        {
+            temp[SIZE-1-i][SIZE-1-j] = pixels[i][j];
+        }
+    }
+
+    for(int i=0;i<SIZE;i++)
+    {
+        for(int j=0;j<SIZE;j++)
+        {
+            pixels[i][j] = temp[i][j];
+        }
     }
 }
-}
 
-void rotate270(){
-for(int i=0;i<64;i++){
-    for(int j=0;j<64;j++){
-        rotated[j][n-i]=pixels[i][j];
+void rotate270(int pixels[SIZE][SIZE])
+{
+    int temp[SIZE][SIZE];
+
+    for(int i=0;i<SIZE;i++)
+    {
+        for(int j=0;j<SIZE;j++)
+        {
+            temp[SIZE-1-j][i] = pixels[i][j];
+        }
+    }
+
+    for(int i=0;i<SIZE;i++)
+    {
+        for(int j=0;j<SIZE;j++)
+        {
+            pixels[i][j] = temp[i][j];
+        }
     }
 }
-}
 
+void rotation(int pixels[SIZE][SIZE], int angle)
+{
+    switch(angle)
+    {
+        case 90:
+            rotate90(pixels);
+            break;
 
-int main(){
-readImage("lion_p2.pgm",pixels);
-//FEATURE #2
+        case 180:
+            rotate180(pixels);
+            break;
 
-int angle;
-printf("Enter the angle by which you want to rotate the image (only multiples of 90°):\n");
-scanf("%d",&angle);
+        case 270:
+            rotate270(pixels);
+            break;
 
-//angle normalisation to ensure that the angles are only 90,180 or 270. Basically it brings it to the fundamental multiple of 90 deg. 
-//In other words, this is to ensure, for eg, 450deg is converted to 90deg because both of them are the same
-angle%=360;
-if(angle<0){
-    angle+=360;
-}
+        case 0:
+            break;
 
-FILE *fp2=fopen("feature2.pgm","w");
-if(fp2==NULL) printf("Error in opening the file!\n");
-else printf("Opened feature2.pgm successfully!\n");
-fprintf(fp2,"P2\n64 64\n255\n");
-
-switch(angle){
-    case 90:
-    rotate90();
-    break;
-
-    case 180:
-    rotate180();
-    break;
-
-    case 270:
-    rotate270();
-    break;
-
-    case 0:
-    for(int i=0;i<64;i++){
-    for(int j=0;j<64;j++){
-        rotated[i][j]=pixels[i][j];
+        default:
+            printf("Not a multiple of 90°\n");
     }
-    }
-    break;
-
-    default:
-    printf("Not a multiple of 90°\n");
-    fclose(fp2);
-    return 0;
-    break;
-}
-
-for(int i=0;i<64;i++){
-    for(int j=0;j<64;j++){
-        fprintf(fp2,"%d ",rotated[i][j]);
-    }
-    fprintf(fp2,"\n");
-}
-
-fclose(fp2);
-system("magick feature2.pgm feature2_preview.png");
-printf("Preview for feature 2 successfully created.\n");
 }
